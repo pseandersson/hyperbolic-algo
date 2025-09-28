@@ -126,62 +126,62 @@ The original implementation was done for a game-engine which a left-handed coord
 
 ## Results
 
-Average errors over 100000 random transformations $M_D(A,A,B,0)$:
+
+Errors for 100000 random points transformations $M_D(A,A,B,0)$:
 
 $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 2.823 \cdot 10^{-04} & 1.771 \cdot 10^{+00} & 676 & 0\\
-\text{double} & 1.106 \cdot 10^{-12} & 6.908 \cdot 10^{-08} & 650&\\
-\text{quadruple}^* & 2.684 \cdot 10^{-35} & 1.992 \cdot 10^{-30} & 8248&\\
+\text{single} & 3.620 \cdot 10^{-04} & 1.863 \cdot 10^{+00} & 657 & 0\\
+\text{double} & 6.777 \cdot 10^{-12} & 4.242 \cdot 10^{-07} & 664&\\
+\text{quadruple}^* & 1.309 \cdot 10^{-34} & 1.123 \cdot 10^{-29} & 8137&\\
 \end{array}
 $$
 
-The high error in the single precision case have not been investigated, and is to be considered a todo item.
 
-Colinear points - Average errors over 100000 random transformations  $M_D(A,A,B,0)$:
+Errors for 100000 random points transformations $M_D(A,0,\xi,0)$:
 
 $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 3.177 \cdot 10^{-06} & 2.736 \cdot 10^{-02} & 811 & 1\\
-\text{double} & 8.386 \cdot 10^{-15} & 5.875 \cdot 10^{-11} & 827&\\
-\text{quadruple}^* & 1.292 \cdot 10^{-37} & 1.965 \cdot 10^{-33} & 9654&\\
+\text{single} & 7.495 \cdot 10^{-02} & 1.978 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 2.204 \cdot 10^{-09} & 1.431 \cdot 10^{-04} & 0&\\
+\text{quadruple}^* & 1.528 \cdot 10^{-32} & 6.951 \cdot 10^{-28} & 18&\\
 \end{array}
 $$
 
-Coordinate: Vector3(3.097e-05, 0.000e+00, -1.528e-05) transformed to Vector3(NaN, NaN, NaN) instead of Vector3(1.815e-04, 0.000e+00, -8.956e-05)
 
-
-
-Average errors over 100000 random transformations $M_D(A,O,\xi,0)$:
+Errors for 100000 colinear points transformations $M_D(A,A,B,0)$:
 
 $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 6.984 \cdot 10^{-02} & 1.985 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 3.204 \cdot 10^{-09} & 1.675 \cdot 10^{-04} & 0&\\
-\text{quadruple}^* & 1.196 \cdot 10^{-31} & 9.308 \cdot 10^{-27} & 5&\\
+\text{single} & 1.731 \cdot 10^{-06} & 1.864 \cdot 10^{-02} & 3112 & 0\\
+\text{double} & 3.615 \cdot 10^{-15} & 4.542 \cdot 10^{-11} & 3088&\\
+\text{quadruple}^* & 3.847 \cdot 10^{-38} & 4.753 \cdot 10^{-34} & 3573&\\
 \end{array}
 $$
 
 
-Colinear points - Average errors over 100000 random transformations $M_D(A,O,\xi,0)$:
+Errors for 100000 colinear points transformations $M_D(A,0,\xi,0)$:
 
 $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 2.918 \cdot 10^{-03} & 1.453 \cdot 10^{+00} & 1 & 0\\
-\text{double} & 1.633 \cdot 10^{-11} & 3.128 \cdot 10^{-07} & 1&\\
-\text{quadruple}^* & 1.379 \cdot 10^{-32} & 1.352 \cdot 10^{-27} & 134&\\
+\text{single} & 1.686 \cdot 10^{-02} & 1.827 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 5.633 \cdot 10^{-10} & 1.301 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 1.718 \cdot 10^{-32} & 6.774 \cdot 10^{-28} & 0&\\
 \end{array}
 $$
+
 
 Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$.
+
+The high error in the single precision case have not been investigated, and is to be considered a todo item.
 
 ## Discussion
 

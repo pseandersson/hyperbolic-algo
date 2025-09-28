@@ -6,22 +6,35 @@ import java.util.Locale;
 import java.util.Vector;
 
 /**
- * Simple mathematical operations interface to allow for different numeric types.
+ * Simple mathematical operations interface to allow for different numeric
+ * types.
  * Currently implemented for Float, Double, and Quadruple.
  */
 interface SimpleMath<T> {
     T add(T a, T b);
+
     T subtract(T a, T b);
+
     T multiply(T a, T b);
+
     T divide(T a, T b);
+
     T sqrt(T a);
+
     int compareTo(T a, T b);
+
     boolean isNaN(T a);
+
     boolean isInfinite(T a);
+
     T negate(T a);
+
     T abs(T a);
+
     T acos(double a);
+
     T fromDouble(double a);
+
     boolean isZeroApprox(T a);
 }
 
@@ -482,9 +495,10 @@ class TransformHB<T extends Number> {
         circle0 = GeometricAnalysis.moveCircle(from, half);
         circle1 = GeometricAnalysis.moveCircle(half, to);
     }
-    
+
     public Vector3<T> translate(Vector3<T> p) {
-        if (circle0 == null || circle1 == null || circle0.math.isNaN(circle0.radius) || circle1.math.isNaN(circle1.radius)) {
+        if (circle0 == null || circle1 == null || circle0.math.isNaN(circle0.radius)
+                || circle1.math.isNaN(circle1.radius)) {
             return p;
         } else {
             return circle1.reflect(circle0.reflect(p));
@@ -492,7 +506,7 @@ class TransformHB<T extends Number> {
     }
 }
 
-class HyperbolicCircle<T extends Number>  extends Circle<T> {
+class HyperbolicCircle<T extends Number> extends Circle<T> {
 
     HyperbolicCircle(Vector3<T> center, Vector3<T> point) {
         super(center.zero(), center.math.fromDouble(0.0)); // Temporary initialization
@@ -504,7 +518,8 @@ class HyperbolicCircle<T extends Number>  extends Circle<T> {
                 this.center = center;
                 this.radius = center.distanceTo(point);
             } else {
-                Vector3<T> m = center.plus(new Circle<T>(center.zero(), center.math.fromDouble(1.0)).reflect(center)).mul(center.math.fromDouble(0.5));
+                Vector3<T> m = center.plus(new Circle<T>(center.zero(), center.math.fromDouble(1.0)).reflect(center))
+                        .mul(center.math.fromDouble(0.5));
                 Circle<T> c2 = GeometricAnalysis.twoPointCircle(m, center);
                 Vector3<T> bpp = c2.reflect(point);
                 Vector3<T> mid = point.plus(bpp).mul(center.math.fromDouble(0.5));
@@ -515,7 +530,7 @@ class HyperbolicCircle<T extends Number>  extends Circle<T> {
         } else {
             Circle<T> circle = GeometricAnalysis.hyperbolicLine(center, point);
             Vector3<T> pointT = point.minus(circle.center);
-            // The tangent of the point 
+            // The tangent of the point
             pointT = new Vector3<T>(center.math.negate(pointT.z), pointT.y, pointT.x, center.math);
             this.center = GeometricAnalysis.lineLineIntersection(center.zero(), center, point, point.plus(pointT));
             this.radius = this.center.distanceTo(point);
@@ -523,11 +538,57 @@ class HyperbolicCircle<T extends Number>  extends Circle<T> {
     }
 }
 
+// Quadruple qerror_sum = new Quadruple(0.0);
+// Quadruple qzerror_sum = new Quadruple(0.0);
+// Double derror_sum = 0.0;
+// Double dzerror_sum = 0.0;
+// Float ferror_sum = 0.0f;
+// Float fzerror_sum = 0.0f;
+// int zeros = 0;
+// int q_zeros = 0;
+// int qz_zeros = 0;
+// int d_zeros = 0;
+// int dz_zeros = 0;
+// int f_zeros = 0;
+// int fz_zeros = 0;
+// int f_nans = 0;
+// Quadruple qmax_error = new Quadruple(0.0);
+// Quadruple qzmax_error = new Quadruple(0.0);
+// Double dmax_error = 0.0;
+// Double dzmax_error = 0.0;
+// Float fmax_error = 0.0f;
+// Float fzmax_error = 0.0f;
+
+class ErrorStats<T extends Number> {
+    public T errorSum;
+    public T maxError;
+    public int zeroCount;
+    public int nanCount;
+    private final SimpleMath<T> math;
+
+    public ErrorStats(SimpleMath<T> math) {
+        this.math = math;
+        this.errorSum = math.fromDouble(0.0);
+        this.maxError = math.fromDouble(0.0);
+        this.zeroCount = 0;
+        this.nanCount = 0;
+    }
+
+    public void reset() {
+        this.errorSum = math.fromDouble(0.0);
+        this.maxError = math.fromDouble(0.0);
+        this.zeroCount = 0;
+        this.nanCount = 0;
+    }
+
+}
+
 public class GeometricAnalysis {
     public static <T extends Number> boolean isColinear(Vector3<T> p1, Vector3<T> p2) {
         SimpleMath<T> math = p1.math;
         return math.isZeroApprox(math.subtract(math.multiply(p1.x, p2.z), math.multiply(p1.z, p2.x)));
     }
+
     public static <T extends Number> Circle<T> twoPointCircle(Vector3<T> o, Vector3<T> p) {
         return new Circle<T>(o, o.distanceTo(p));
     }
@@ -545,9 +606,10 @@ public class GeometricAnalysis {
                 p2);
     }
 
-    public static <T extends Number> Vector3<T> lineLineIntersection(Vector3<T> a1, Vector3<T> a2, Vector3<T> b1, Vector3<T> b2) {
+    public static <T extends Number> Vector3<T> lineLineIntersection(Vector3<T> a1, Vector3<T> a2, Vector3<T> b1,
+            Vector3<T> b2) {
         Vector3<T> a = a2.minus(a1);
-        Vector3<T> b = b2.minus(b1); 
+        Vector3<T> b = b2.minus(b1);
         Vector3<T> c = b1.minus(a1);
 
         Vector3<T> xp1 = c.cross(b);
@@ -560,7 +622,8 @@ public class GeometricAnalysis {
         return math.compareTo(x, math.fromDouble(0.0)) < 0 ? math.fromDouble(-1.0) : math.fromDouble(1.0);
     }
 
-    public static <T extends Number> IntersectionResult<T> lineCircleIntersection(Vector3<T> o, Vector3<T> dir, Circle<T> circle) {
+    public static <T extends Number> IntersectionResult<T> lineCircleIntersection(Vector3<T> o, Vector3<T> dir,
+            Circle<T> circle) {
         SimpleMath<T> math = o.math;
         T dX = dir.x;
         T dY = dir.z;
@@ -582,23 +645,31 @@ public class GeometricAnalysis {
 
         return new IntersectionResult<T>(
                 new Vector3<T>(
-                        math.add(math.divide(math.add(math.multiply(D, dY), math.multiply(math.multiply(hsign(dY, math), dX), s)), dR2),
+                        math.add(
+                                math.divide(math.add(math.multiply(D, dY),
+                                        math.multiply(math.multiply(hsign(dY, math), dX), s)), dR2),
                                 circle.center.x),
                         math.fromDouble(0.0),
-                        math.add(math.divide(math.add(math.multiply(math.negate(D), dX), math.multiply(math.abs(dY), s)), dR2),
+                        math.add(
+                                math.divide(math.add(math.multiply(math.negate(D), dX), math.multiply(math.abs(dY), s)),
+                                        dR2),
                                 circle.center.z),
                         math),
                 new Vector3<T>(
                         math.add(
-                                math.divide(math.subtract(math.multiply(D, dY), math.multiply(math.multiply(hsign(dY, math), dX), s)), dR2),
+                                math.divide(math.subtract(math.multiply(D, dY),
+                                        math.multiply(math.multiply(hsign(dY, math), dX), s)), dR2),
                                 circle.center.x),
                         math.fromDouble(0.0),
-                        math.add(math.divide(math.subtract(math.multiply(math.negate(D), dX), math.multiply(math.abs(dY), s)), dR2),
+                        math.add(
+                                math.divide(math.subtract(math.multiply(math.negate(D), dX),
+                                        math.multiply(math.abs(dY), s)), dR2),
                                 circle.center.z),
                         math));
     }
 
-    public static <T extends Number> IntersectionResult<T> circleCircleIntersection(Circle<T> circle1, Circle<T> circle2) {
+    public static <T extends Number> IntersectionResult<T> circleCircleIntersection(Circle<T> circle1,
+            Circle<T> circle2) {
         SimpleMath<T> math = circle1.math;
         Vector3<T> ab = circle1.center.minus(circle2.center);
         Vector3<T> n = circle1.center.up().cross(ab).normalized();
@@ -617,7 +688,7 @@ public class GeometricAnalysis {
     }
 
     public static <T extends Number> HyperbolicSegment<T> moveCircle(Vector3<T> p1, Vector3<T> p2) {
-        Circle<T> hc1 = new HyperbolicCircle<T>(p1, p2); 
+        Circle<T> hc1 = new HyperbolicCircle<T>(p1, p2);
         Circle<T> hc2 = new HyperbolicCircle<T>(p2, p1);
 
         IntersectionResult<T> result = circleCircleIntersection(hc1, hc2);
@@ -630,14 +701,13 @@ public class GeometricAnalysis {
     }
 
     public static <T extends Number> Vector3<T> randomUnitDiscPoint(SimpleMath<T> math) {
-        double r = Math.random(); 
+        double r = Math.random();
         double theta = Math.random() * 2 * Math.PI;
         return new Vector3<T>(
-            r * Math.cos(theta),
-            0.0,
-            r * Math.sin(theta),
-            math
-        );
+                r * Math.cos(theta),
+                0.0,
+                r * Math.sin(theta),
+                math);
     }
 
     public static <T extends Number> Vector3<T> zeroToPointTransform(Vector3<T> p0, Vector3<T> p1) {
@@ -666,7 +736,6 @@ public class GeometricAnalysis {
         Vector3<T> z2 = p1.zero();
         Vector3<T> z3 = p1.zero();
 
-
         if (areValidMoveCircles(move0P1, move0P2)) {
             z1 = move0P2.reflect(move0P1.reflect(p1.zero()));
         }
@@ -694,298 +763,156 @@ public class GeometricAnalysis {
             }
         }
 
-
-
         return transform;
 
     }
 
-    private static <T extends Number> boolean areValidMoveCircles(HyperbolicSegment<T> seg1, HyperbolicSegment<T> seg2) {
-        return !seg1.isColinear && !seg2.isColinear; 
+    private static <T extends Number> boolean areValidMoveCircles(HyperbolicSegment<T> seg1,
+            HyperbolicSegment<T> seg2) {
+        return !seg1.isColinear && !seg2.isColinear;
+    }
+
+    private static <T extends Number> T transformError(Vector3<T> p0, Vector3<T> p1) {
+        return (new TransformHB<T>(p0, p1)).translate(p0).minus(p1).length();
+    }
+
+    private static <T extends Number> T transformFromZeroError(Vector3<T> p0, Vector3<T> p1) {
+        return (new TransformHB<T>(p0.zero(), zeroToPointTransform(p0, p1))).translate(p0).minus(p1).length();
+    }
+
+    private static boolean evaluateTransforms(Vector3<Quadruple> q0, Vector3<Quadruple> q1, ErrorStats<Quadruple> qStats,
+            ErrorStats<Quadruple> qzStats, ErrorStats<Double> dStats, ErrorStats<Double> dzStats,
+            ErrorStats<Float> fStats, ErrorStats<Float> fzStats) {
+        // Compute error metrics
+        Quadruple qerror = transformError(q0, q1);
+        Quadruple qzerror = transformFromZeroError(q0, q1);
+
+        Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(),
+                Vector3.DOUBLE_MATH);
+        Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(),
+                Vector3.DOUBLE_MATH);
+        Double derror = transformError(d0, d1);
+        Double dzerror = transformFromZeroError(d0, d1);
+
+        Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(),
+                Vector3.FLOAT_MATH);
+        Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(),
+                Vector3.FLOAT_MATH);
+        Float ferror = transformError(f0, f1);
+        Float fzerror = transformFromZeroError(f0, f1);
+
+        // Validate results
+        if (ferror.isNaN()) {
+            System.out.println("Coordinate: " + f0 + " to " + f1 + " caused NaN error");
+            fStats.nanCount++;
+            return false;
+        }
+        if (fzerror.isNaN()) {
+            System.out.println("Coordinate: " + f0 + " to " + f1 + " caused NaN error");
+            fzStats.nanCount++;
+            return false;
+        }
+        if (qerror.equals(new Quadruple(0.0)))
+            qStats.zeroCount++;
+        if (qzerror.equals(new Quadruple(0.0)))
+            qzStats.zeroCount++;
+        if (derror.equals(0.0))
+            dStats.zeroCount++;
+        if (dzerror.equals(0.0))
+            dzStats.zeroCount++;
+        if (ferror.equals(0.0f))
+            fStats.zeroCount++;
+        if (fzerror.equals(0.0f))
+            fzStats.zeroCount++;
+        if (qerror.equals(new Quadruple(0.0)) || qzerror.equals(new Quadruple(0.0)) || derror.equals(0.0)
+                || dzerror.equals(0.0) || ferror.equals(0.0f) || fzerror.equals(0.0f)) {
+            return false;
+        }
+
+        // Gather statistics
+        qStats.errorSum = Quadruple.add(qStats.errorSum, qerror);
+        qzStats.errorSum = Quadruple.add(qzStats.errorSum, qzerror);
+        dStats.errorSum += derror;
+        dzStats.errorSum += dzerror;
+        fStats.errorSum += ferror;
+        fzStats.errorSum += fzerror;
+        qStats.maxError = Quadruple.max(qStats.maxError , qerror);
+        qzStats.maxError = Quadruple.max(qzStats.maxError, qzerror);
+        dStats.maxError = Math.max(dStats.maxError, derror);
+        dzStats.maxError = Math.max(dzStats.maxError, dzerror);
+        fStats.maxError = Math.max(fStats.maxError, ferror);
+        fzStats.maxError = Math.max(fzStats.maxError, fzerror);
+
+        return true;
+    }
+
+    private static void printStats(String label, ErrorStats<Float> fStats, ErrorStats<Double> dStats, ErrorStats<Quadruple> qStats, int n) {
+        Float ferror = fStats.errorSum / n;
+        Double derror = dStats.errorSum / n;
+        Quadruple qerror = qStats.errorSum.divide(new Quadruple(n));
+        System.out.println("");
+        System.out.println(label);
+        System.out.println("");
+        System.out.println("$$");
+        System.out.println("\\begin{array}{lcccc}");
+        System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
+        System.out.println("\\hline");
+        System.out.println("\\text{single} & " + String.format("%.3e", ferror).replace("e", " \\cdot 10^{") + "} & "
+                + String.format("%.3e", fStats.maxError).replace("e", " \\cdot 10^{") + "} & " + fStats.zeroCount + " & " + fStats.nanCount
+                + "\\\\");
+        System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e", " \\cdot 10^{") + "} & "
+                + String.format("%.3e", dStats.maxError).replace("e", " \\cdot 10^{") + "} & " + dStats.zeroCount +"&\\\\");
+        System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e", " \\cdot 10^{") + "} & "
+                + qStats.maxError.format("%.3e").replace("e", " \\cdot 10^{") + "} & " + qStats.zeroCount +"&\\\\");
+        System.out.println("\\end{array}");
+        System.out.println("$$");
+        System.out.println("");
     }
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.UK);
         System.out.println("Geometric Analysis Module:");
-        Quadruple qerror_sum = new Quadruple(0.0);
-        Double derror_sum = 0.0;
-        Float ferror_sum = 0.0f;
         int n = 100000;
-        int zeros = 0;
-        int q_zeros = 0;
-        int d_zeros = 0;
-        int f_zeros = 0;
-        int f_nans = 0;
-        Quadruple qmax_error = new Quadruple(0.0);
-        Double dmax_error = 0.0;
-        Float fmax_error = 0.0f;
+        int retries = 0;
 
+        ErrorStats<Quadruple> qStats = new ErrorStats<>(Vector3.QUADRUPLE_MATH);
+        ErrorStats<Quadruple> qzStats = new ErrorStats<>(Vector3.QUADRUPLE_MATH);
+        ErrorStats<Double> dStats = new ErrorStats<>(Vector3.DOUBLE_MATH);
+        ErrorStats<Double> dzStats = new ErrorStats<>(Vector3.DOUBLE_MATH);
+        ErrorStats<Float> fStats = new ErrorStats<>(Vector3.FLOAT_MATH);
+        ErrorStats<Float> fzStats = new ErrorStats<>(Vector3.FLOAT_MATH);
 
-        for (int i = 0; i - zeros - f_nans < n; i++) {
+        for (int i = 0; i - retries < n; i++) {
             Vector3<Quadruple> q0 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
             Vector3<Quadruple> q1 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
-            TransformHB<Quadruple> transform = new TransformHB<Quadruple>(q0, q1);
-            Quadruple qerror = transform.translate(q0).minus(q1).length();
-            
-            Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(),
-            Vector3.DOUBLE_MATH);
-            Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(),
-            Vector3.DOUBLE_MATH);
-            TransformHB<Double> dtransform = new TransformHB<Double>(d0, d1);
-            Double derror = dtransform.translate(d0).minus(d1).length();
-            
-            Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(),
-            Vector3.FLOAT_MATH);
-            Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(),
-            Vector3.FLOAT_MATH);
-            TransformHB<Float> ftransform = new TransformHB<Float>(f0, f1);
-            Float ferror = ftransform.translate(f0).minus(f1).length();
-            if (ferror.isNaN()) {
-                System.out.println("Coordinate: " + f0 + " transformed to " + ftransform.translate(f0) + " instead of " + f1);
-                f_nans++;
-                continue;
+            if (!evaluateTransforms(q0, q1, qStats, qzStats, dStats, dzStats, fStats, fzStats)) {
+                retries++;
             }
-            if (qerror.equals(new Quadruple(0.0))) q_zeros++;
-            if (derror.equals(0.0)) d_zeros++;
-            if (ferror.equals(0.0f)) f_zeros++;
-            if (qerror.equals(new Quadruple(0.0)) || derror.equals(0.0) || ferror.equals(0.0f)) {
-                zeros++;
-                continue;
-            }
-            qerror_sum = Quadruple.add(qerror_sum, qerror);
-            derror_sum += derror;
-            ferror_sum += ferror;
-            qmax_error = Quadruple.max(qmax_error, qerror);
-            dmax_error = Math.max(dmax_error, derror);  
-            fmax_error = Math.max(fmax_error, ferror);
         }
-        {
-            Quadruple qerror = qerror_sum.divide(new Quadruple(n));
-            Double derror = derror_sum / n;
-            Float ferror = ferror_sum / n;
-            System.out.println("");
-            System.out.println("Average errors over " + n + " random transformations $M_D(A,A,B,0)$:");
-            System.out.println("");
-            System.out.println("$$");
-            System.out.println("\\begin{array}{lcccc}");
-            System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
-            System.out.println("\\hline");
-            System.out.println("\\text{single} & " + String.format("%.3e",ferror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", fmax_error).replace("e"," \\cdot 10^{") + "} & " + f_zeros +  " & " + f_nans + "\\\\");
-            System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", dmax_error).replace("e"," \\cdot 10^{") + "} & " + d_zeros + "&\\\\");
-            System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + qmax_error.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + q_zeros + "&\\\\");
-            System.out.println("\\end{array}");
-            System.out.println("$$");
-            System.out.println("");
-        }
-        // Test with colinear points
-        qerror_sum = new Quadruple(0.0);
-        derror_sum = 0.0;
-        ferror_sum = 0.0f;
-        zeros = 0;
-        f_nans = 0;
-        q_zeros = 0;
-        d_zeros = 0;
-        f_zeros = 0;
-        qmax_error = new Quadruple(0.0);
-        dmax_error = 0.0;
-        fmax_error = 0.0f;
 
-        for (int i = 0; i - zeros < n; i++) {
+        printStats("Errors for " + n + " random points transformations $M_D(A,A,B,0)$:", fStats, dStats, qStats, n);
+        printStats("Errors for " + n + " random points transformations $M_D(A,0,\\xi,0)$:", fzStats, dzStats, qzStats, n);
+        
+        fStats.reset();
+        fzStats.reset();
+        dStats.reset();
+        dzStats.reset();
+        qStats.reset();
+        qzStats.reset();
+
+        for (int i = 0; i - retries < n; i++) {
             // Generate two colinear points by scaling a random direction
-            Vector3<Quadruple> dir = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
+            Vector3<Quadruple> dir = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH).normalized();
             double scale1 = Math.random();
             double scale2 = Math.random();
             Vector3<Quadruple> q0 = dir.mul(new Quadruple(scale1));
             Vector3<Quadruple> q1 = dir.mul(new Quadruple(scale2));
-
-            TransformHB<Quadruple> transform = new TransformHB<Quadruple>(q0, q1);
-            Quadruple qerror = transform.translate(q0).minus(q1).length();
-            
-            Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(), Vector3.DOUBLE_MATH);
-            Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(), Vector3.DOUBLE_MATH);
-            TransformHB<Double> dtransform = new TransformHB<Double>(d0, d1);
-            Double derror = dtransform.translate(d0).minus(d1).length();
-            
-            Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(), Vector3.FLOAT_MATH);
-            Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(), Vector3.FLOAT_MATH);
-            TransformHB<Float> ftransform = new TransformHB<Float>(f0, f1);
-            Float ferror = ftransform.translate(f0).minus(f1).length();
-            if (ferror.isNaN()) {
-                System.out.println("Coordinate: " + f0 + " transformed to " + ftransform.translate(f0) + " instead of " + f1);
-                f_nans++;
-                continue;
+            if (!evaluateTransforms(q0, q1, qStats, qzStats, dStats, dzStats, fStats, fzStats)) {
+                retries++;
             }
-            if (qerror.equals(new Quadruple(0.0))) q_zeros++;
-            if (derror.equals(0.0)) d_zeros++;
-            if (ferror.equals(0.0f)) f_zeros++;
-            if (qerror.equals(new Quadruple(0.0)) || derror.equals(0.0) || ferror.equals(0.0f)) {
-                zeros++;
-                continue;
-            }
-            qerror_sum = Quadruple.add(qerror_sum, qerror);
-            derror_sum += derror;
-            ferror_sum += ferror;
-            qmax_error = Quadruple.max(qmax_error, qerror);
-            dmax_error = Math.max(dmax_error, derror);  
-            fmax_error = Math.max(fmax_error, ferror);
-        }
-        {
-            Quadruple qerror = qerror_sum.divide(new Quadruple(n));
-            Double derror = derror_sum / n;
-            Float ferror = ferror_sum / n;
-
-            System.out.println("\nColinear points - Average errors over " + n + " random transformations  $M_D(A,A,B,0)$:");
-            System.out.println("");
-            System.out.println("$$");
-            System.out.println("\\begin{array}{lcccc}");
-            System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
-            System.out.println("\\hline");
-            System.out.println("\\text{single} & " + String.format("%.3e",ferror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", fmax_error).replace("e"," \\cdot 10^{") + "} & " + f_zeros +  " & " + f_nans + "\\\\");
-            System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", dmax_error).replace("e"," \\cdot 10^{") + "} & " + d_zeros + "&\\\\");
-            System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + qmax_error.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + q_zeros + "&\\\\");
-            System.out.println("\\end{array}");
-            System.out.println("$$");
-            System.out.println("");
         }
 
-        qerror_sum = new Quadruple(0.0);
-        derror_sum = 0.0;
-        ferror_sum = 0.0f;
-        zeros = 0;
-        f_nans = 0;
-        q_zeros = 0;
-        d_zeros = 0;
-        f_zeros = 0;
-        qmax_error = new Quadruple(0.0);
-        dmax_error = 0.0;
-        fmax_error = 0.0f;
-
-        for (int i = 0; i - zeros - f_nans < n; i++) {
-            Vector3<Quadruple> q0 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
-            Vector3<Quadruple> q1 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
-            Vector3<Quadruple> qtransform = zeroToPointTransform(q0, q1);
-            TransformHB<Quadruple> transform = new TransformHB<Quadruple>(q0.zero(), qtransform);
-            Quadruple qerror = transform.translate(q0).minus(q1).length();
-            
-            Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(),
-            Vector3.DOUBLE_MATH);
-            Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(),
-            Vector3.DOUBLE_MATH);
-            TransformHB<Double> dtransform = new TransformHB<Double>(d0.zero(), zeroToPointTransform(d0, d1));
-            Double derror = dtransform.translate(d0).minus(d1).length();
-            
-            Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(),
-            Vector3.FLOAT_MATH);
-            Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(),
-            Vector3.FLOAT_MATH);
-            TransformHB<Float> ftransform = new TransformHB<Float>(f0.zero(), zeroToPointTransform(f0, f1));
-            Float ferror = ftransform.translate(f0).minus(f1).length();
-            if (ferror.isNaN()) {
-                System.out.println("Coordinate: " + f0 + " transformed to " + ftransform.translate(f0) + " instead of " + f1);
-                f_nans++;
-                continue;
-            }
-            if (qerror.equals(new Quadruple(0.0))) q_zeros++;
-            if (derror.equals(0.0)) d_zeros++;
-            if (ferror.equals(0.0f)) f_zeros++;
-            if (qerror.equals(new Quadruple(0.0)) || derror.equals(0.0) || ferror.equals(0.0f)) {
-                zeros++;
-                continue;
-            }
-            qerror_sum = Quadruple.add(qerror_sum, qerror);
-            derror_sum += derror;
-            ferror_sum += ferror;
-            qmax_error = Quadruple.max(qmax_error, qerror);
-            dmax_error = Math.max(dmax_error, derror);  
-            fmax_error = Math.max(fmax_error, ferror);
-        }
-        {
-            Quadruple qerror = qerror_sum.divide(new Quadruple(n));
-            Double derror = derror_sum / n;
-            Float ferror = ferror_sum / n;
-            System.out.println("");
-            System.out.println("Average errors over " + n + " random transformations $M_D(A,O,\\xi,0)$:");
-            System.out.println("");
-            System.out.println("$$");
-            System.out.println("\\begin{array}{lcccc}");
-            System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
-            System.out.println("\\hline");
-            System.out.println("\\text{single} & " + String.format("%.3e",ferror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", fmax_error).replace("e"," \\cdot 10^{") + "} & " + f_zeros +  " & " + f_nans + "\\\\");
-            System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", dmax_error).replace("e"," \\cdot 10^{") + "} & " + d_zeros + "&\\\\");
-            System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + qmax_error.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + q_zeros + "&\\\\");
-            System.out.println("\\end{array}");
-            System.out.println("$$");
-            System.out.println("");
-        }
-        // Test with colinear points
-        qerror_sum = new Quadruple(0.0);
-        derror_sum = 0.0;
-        ferror_sum = 0.0f;
-        zeros = 0;
-        f_nans = 0;
-        q_zeros = 0;
-        d_zeros = 0;
-        f_zeros = 0;
-        qmax_error = new Quadruple(0.0);
-        dmax_error = 0.0;
-        fmax_error = 0.0f;
-
-        for (int i = 0; i - zeros < n; i++) {
-            // Generate two colinear points by scaling a random direction
-            Vector3<Quadruple> dir = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
-            double scale1 = Math.random();
-            double scale2 = Math.random();
-            Vector3<Quadruple> q0 = dir.mul(new Quadruple(scale1));
-            Vector3<Quadruple> q1 = dir.mul(new Quadruple(scale2));
-
-            TransformHB<Quadruple> transform = new TransformHB<Quadruple>(q0.zero(), zeroToPointTransform(q0, q1));
-            Quadruple qerror = transform.translate(q0).minus(q1).length();
-            
-            Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(), Vector3.DOUBLE_MATH);
-            Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(), Vector3.DOUBLE_MATH);
-            TransformHB<Double> dtransform = new TransformHB<Double>(d0.zero(), zeroToPointTransform(d0, d1));
-            Double derror = dtransform.translate(d0).minus(d1).length();
-            
-            Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(), Vector3.FLOAT_MATH);
-            Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(), Vector3.FLOAT_MATH);
-            TransformHB<Float> ftransform = new TransformHB<Float>(f0.zero(), zeroToPointTransform(f0, f1));
-            Float ferror = ftransform.translate(f0).minus(f1).length();
-            if (ferror.isNaN()) {
-                System.out.println("Coordinate: " + f0 + " transformed to " + ftransform.translate(f0) + " instead of " + f1);
-                f_nans++;
-                continue;
-            }
-            if (qerror.equals(new Quadruple(0.0))) q_zeros++;
-            if (derror.equals(0.0)) d_zeros++;
-            if (ferror.equals(0.0f)) f_zeros++;
-            if (qerror.equals(new Quadruple(0.0)) || derror.equals(0.0) || ferror.equals(0.0f)) {
-                zeros++;
-                continue;
-            }
-            qerror_sum = Quadruple.add(qerror_sum, qerror);
-            derror_sum += derror;
-            ferror_sum += ferror;
-            qmax_error = Quadruple.max(qmax_error, qerror);
-            dmax_error = Math.max(dmax_error, derror);  
-            fmax_error = Math.max(fmax_error, ferror);
-        }
-        {
-            Quadruple qerror = qerror_sum.divide(new Quadruple(n));
-            Double derror = derror_sum / n;
-            Float ferror = ferror_sum / n;
-
-            System.out.println("\nColinear points - Average errors over " + n + " random transformations $M_D(A,O,\\\\xi,0)$:");
-            System.out.println("");
-            System.out.println("$$");
-            System.out.println("\\begin{array}{lcccc}");
-            System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
-            System.out.println("\\hline");
-            System.out.println("\\text{single} & " + String.format("%.3e",ferror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", fmax_error).replace("e"," \\cdot 10^{") + "} & " + f_zeros +  " & " + f_nans + "\\\\");
-            System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e"," \\cdot 10^{") + "} & " + String.format("%.3e", dmax_error).replace("e"," \\cdot 10^{") + "} & " + d_zeros + "&\\\\");
-            System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + qmax_error.format("%.3e").replace("e"," \\cdot 10^{") + "} & " + q_zeros + "&\\\\");
-            System.out.println("\\end{array}");
-            System.out.println("$$");
-            System.out.println("");
-        }
+        printStats("Errors for " + n + " colinear points transformations $M_D(A,A,B,0)$:", fStats, dStats, qStats, n);
+        printStats("Errors for " + n + " colinear points transformations $M_D(A,0,\\xi,0)$:", fzStats, dzStats, qzStats, n);
     }
 }
