@@ -110,7 +110,7 @@ $$
 
 The function $M_D$ hides the fact that there are two reflection circles in operation, for further details study the defintion of it.
 
-The theorem says that there exists an circle which are created by transforming the origo with the translation operation between $A$ and $B$ with different paths. It is some kind of dual space. The different path creates points on the circle.
+The theorem says that there exists an circle which is created by transforming the origo with the translation operation between $A$ and $B$ with different paths. It is some kind of dual space. The different path creates points on the circle.
 
 ## Implementation Details
 
