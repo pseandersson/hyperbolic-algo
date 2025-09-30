@@ -38,13 +38,13 @@ An introduction to Hyperbolic constructions is found at this site: https://www.m
 ## Abstract
 In geometry, many has study the properties of the pointcaré disc, which is unit-disc excluding the boundary. It is the foundation for the hyperbolic geometry which enabling more tesselation configurations, and it might be of interest of gamedevelopers to use such a tesselation for the gaming world.  However the hyperbolic geometry is non-euclidean which means the translation by a mouse-pointer, which coordinates is given by euclidean coordinates for a point is non-trivial, since it has to be transformed into circles to be used when transforming the coordinates in the hyperbolic geometric space.
 
-There have been several work covering Möbius transformation in poincaré disc, but no work was found about transferring euclidean transformation into hyperbolic transformations.
+There have been several work covering Möbius transformation in poincaré disk model, but no work was found about transferring euclidean transformation into hyperbolic transformations.
 
 In this paper a geometric construction is approximating the euclidean translation transformation in the hyperbolic space is presented.
 
 ## Literature Survey
 
-The take away from the literature is that two reflections can create a translation, and in inversive geoemtry or hyperbolic geometry one use reflections to *transfer* points in the geometric constructions [https://en.wikipedia.org/wiki/Inversive_geometry#In_higher_dimensions].
+The take away from the literature is that two reflections can create a translation, and in hyperbolic geometry one use reflections to *transfer* points in the geometric constructions [https://en.wikipedia.org/wiki/Inversive_geometry#In_higher_dimensions]. All transformations in pointcaré disk model, or inside the unit disc are Möbius transformations [https://en.wikipedia.org/wiki/Hyperbolic_geometry].
 
 ## Definitions
 
@@ -60,13 +60,13 @@ C(A, B, C) :=& \text{ Circle through point $A$, $B$ and $C$} \\
 S(A,B):=& \text{ Euclidean Line/Segment between point $A$ and $B$}\\
 I_i(C_1, C_2) \rightarrow \set{I_1, I_2} :=& \text{ Intersection of two euclidean circles, $i \in \set{1,2}$ denotes which intersection} \\
 I(A_1, A_2, B_1, B_2) :=& \text{ Intersection of two lines}\\
-sgn(x) \rightarrow \{1,-1\} :=& \text{ $-1$ when $x\lt 0$ otherwise $1$}\\
+sgn(x) \rightarrow \set{1,-1} :=& \text{ $-1$ when $x\lt 0$ otherwise $1$}\\
 I_i(A_1, A_2, C) \rightarrow \set{I_1, I_2} :=& \text{ Intersection of a line and a circle }\\
 R(P,C) \rightarrow U :=& \text{ Reflection of point $P$ about circle $C$ returning point $U$}\\
 R(P,S) \rightarrow U :=& \text{ Reflection of point $P$ about line $S$ returning point $U$}\\
 C_H(P,Q) \rightarrow C(\cdot, \cdot) :=& \text{ Hyperbolic circle with its centre at $P$ and goes through point $Q$} \\
-S_H(P,Q) \rightarrow \{C(\cdot, \cdot), S(P,Q)\}:=& \text{ Hyperbolic line segment in pointcaré disc between point $P$ and $Q$} \\
-M(P, Q) \rightarrow \{C(\cdot,\cdot), S(P,Q)\}  :=& \text{ Circle or line segment to perform reflection about} \\
+S_H(P,Q) \rightarrow \set{C(\cdot, \cdot), S(P,Q)}:=& \text{ Hyperbolic line segment in pointcaré disc between point $P$ and $Q$} \\
+M(P, Q) \rightarrow \set{C(\cdot,\cdot), S(P,Q)}  :=& \text{ Circle or line segment to perform reflection about} \\
 M_D(X,P,Q, \gamma) \rightarrow U :=&\text{ Dilation/move/rotation transform in hyperbolic space. } \\
 M_D^{-1}(X,P,Q, \gamma) \rightarrow U :=&~M_D(X,Q,P, \gamma)\text{ Inverse dilation/move/rotation transform in hyperbolic space. } 
 \end{align}
@@ -93,20 +93,24 @@ $$
 $$
 \begin{gather}
 Z_0 = M_D(O, A, B, 0)\\
-Z_1 = M_D(O, A, B, 0.001)\\
-Z_2 = M_D(O, A, B, -0.001)\\
+Z_1 = M_D(O, A, B, \gamma_1)\\
+Z_2 = M_D(O, A, B, \gamma_2)\\
 \notag \\
-\lVert A \rVert \lt 1.0, \quad\lVert B \rVert \lt 1.0 \\
-M_D(\cdot, \cdot, \cdot, \cdot) \rightarrow S(\cdot, \cdot) \implies Z_i = O  \\
+\lVert A \rVert \lt 1.0, \quad\lVert B \rVert \lt 1.0,\\
+ \gamma_1 \neq 0, \quad \gamma_2 \neq 0,\quad \gamma_1 \neq \gamma_2 \\
+Z_i = O,  \text{ when } M_D(\cdot, \cdot, \cdot, \cdot) \rightarrow S(\cdot, \cdot) \\
 \notag \\
 \xi = \begin{cases}
-O, \quad Z_i \propto Z_j \quad i \neq j \quad i,j \in \{0,1,2\} \\
+O, \quad Z_i \propto Z_j \quad i \neq j \quad i,j \in \set{0,1,2} \\
 O, \quad \lVert C_{center}(Z_0, Z_1, Z_2) \rVert \gt 1 \\
- C_{center}\left(Z_0,Z_1,Z_2\right) - C_{radius}(Z_0,Z_1,Z_2)\frac{A}{\lVert A\rVert}, \text{otherwise}\\
+ C_{center}\left(Z_0,Z_1,Z_2\right) - C_{radius}(Z_0,Z_1,Z_2)\frac{A}{\lVert A\rVert}, \text{otherwise}.\\
  \end{cases}
 \end{gather}
 $$
 
+The function $M_D$ hides the fact that there are two reflection circles in operation, for further details study the defintion of it.
+
+The theorem says that there exists an circle which are created by transforming the origo with the translation operation between $A$ and $B$ with different paths. It is some kind of dual space. The different path creates points on the circle.
 
 ## Implementation Details
 
@@ -124,6 +128,10 @@ $$
 
 The original implementation was done for a game-engine which a left-handed coordinate system where the up-vector $Z=(0,1,0)$ was used. This configuration remains in implementation, wheras the equations considering the the $XY$-plane.
 
+$\gamma_1$ and $\gamma_2$ was set to 0.001 respectively -0.001 to keep some numerical stability to the problem.
+
+Points are generated with quadruple* precision and then downcast to double and single precision. For colinear points, a direction first sampled and then scaled with two different sampled values in range $[0,1]$.
+
 ## Results
 
 
@@ -131,11 +139,11 @@ Errors for 100000 random points transformations $M_D(A,A,B,0)$:
 
 $$
 \begin{array}{lcccc}
-\text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 3.620 \cdot 10^{-04} & 1.863 \cdot 10^{+00} & 657 & 0\\
-\text{double} & 6.777 \cdot 10^{-12} & 4.242 \cdot 10^{-07} & 664&\\
-\text{quadruple}^* & 1.309 \cdot 10^{-34} & 1.123 \cdot 10^{-29} & 8137&\\
+\text{single} & 2.233 \cdot 10^{-04} & 1.607 \cdot 10^{+00} & 654 & 0\\
+\text{double} & 6.719 \cdot 10^{-11} & 6.622 \cdot 10^{-06} & 714&\\
+\text{quadruple}^* & 5.795 \cdot 10^{-33} & 5.790 \cdot 10^{-28} & 8083&\\
 \end{array}
 $$
 
@@ -144,11 +152,11 @@ Errors for 100000 random points transformations $M_D(A,0,\xi,0)$:
 
 $$
 \begin{array}{lcccc}
-\text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.495 \cdot 10^{-02} & 1.978 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 2.204 \cdot 10^{-09} & 1.431 \cdot 10^{-04} & 0&\\
-\text{quadruple}^* & 1.528 \cdot 10^{-32} & 6.951 \cdot 10^{-28} & 18&\\
+\text{single} & 7.382 \cdot 10^{-02} & 1.977 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 5.740 \cdot 10^{-10} & 7.253 \cdot 10^{-06} & 0&\\
+\text{quadruple}^* & 1.384 \cdot 10^{-32} & 7.056 \cdot 10^{-28} & 7&\\
 \end{array}
 $$
 
@@ -157,11 +165,11 @@ Errors for 100000 colinear points transformations $M_D(A,A,B,0)$:
 
 $$
 \begin{array}{lcccc}
-\text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 1.731 \cdot 10^{-06} & 1.864 \cdot 10^{-02} & 3112 & 0\\
-\text{double} & 3.615 \cdot 10^{-15} & 4.542 \cdot 10^{-11} & 3088&\\
-\text{quadruple}^* & 3.847 \cdot 10^{-38} & 4.753 \cdot 10^{-34} & 3573&\\
+\text{single} & 3.326 \cdot 10^{-06} & 1.885 \cdot 10^{-01} & 3114 & 0\\
+\text{double} & 3.402 \cdot 10^{-15} & 8.645 \cdot 10^{-11} & 3142&\\
+\text{quadruple}^* & 8.550 \cdot 10^{-38} & 3.189 \cdot 10^{-33} & 3580&\\
 \end{array}
 $$
 
@@ -170,26 +178,39 @@ Errors for 100000 colinear points transformations $M_D(A,0,\xi,0)$:
 
 $$
 \begin{array}{lcccc}
-\text{Precision} & \bar{\varepsilon} & \hat{\varepsilon} & 0 & \text{NaNs}\\
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 1.686 \cdot 10^{-02} & 1.827 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 5.633 \cdot 10^{-10} & 1.301 \cdot 10^{-05} & 0&\\
-\text{quadruple}^* & 1.718 \cdot 10^{-32} & 6.774 \cdot 10^{-28} & 0&\\
+\text{single} & 1.696 \cdot 10^{-02} & 1.940 \cdot 10^{+00} & 2 & 0\\
+\text{double} & 4.322 \cdot 10^{-08} & 4.282 \cdot 10^{-03} & 1&\\
+\text{quadruple}^* & 1.861 \cdot 10^{-31} & 1.447 \cdot 10^{-26} & 1&\\
 \end{array}
 $$
 
 
-Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$.
+
+Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$, which could be explained that there are so many heavy numerical operations which affects the precision. Since higher precision was not investigated, is is from this shortage of data possible to make following assumption:
+
+$$
+\begin{equation}
+\lim_{precision \rightarrow \infin} \lVert \varepsilon \rVert \rightarrow 0.
+\end{equation}
+$$
+
+The number of zeros column and the NaN column, those numbers are excluded from the averaging. The averaging is of 100000 points, so that the total number of samples is then 100000 plus the zero and NaN count.
 
 The high error in the single precision case have not been investigated, and is to be considered a todo item.
 
 ## Discussion
 
-The literature survey was limited since it would be too much effort to read up on a complete new field and the science related to the Möbius transform. So there might have been algorithms which cover the same problem but was not found.
+The literature survey was limited since it would be too much effort to read up on a complete new field and the science related to the Möbius transformation. So there might have been algorithms which cover the same problem but was not found. The literature tells that all transformation inside the pointcaré disk model are Möbius transformations, so it should be possible to express the theorem using Möbius transformations.
 
 With higher precision the results approaches zero. That makes the argument that the geometric construction is exact, even if the author have not been able to prove it theoretical. The most important part is to considering the decrease of magnitude of the error since they may vary between executions.
 
 There might be some more improvement possible to the theorem since the zero handling of $Z_i$ and $\xi$ could be refined.
+
+The determination of $\gamma_1$ and $\gamma_2$ could be investigated more closely, perhaps a grid-search within a small range of their chosen values could improve the calculations.
+
+
 
 ## Conclusion
 
@@ -256,7 +277,9 @@ I_1(A_1, A_2, C) = C_{center} + \frac{1}{(A_2 - A_1)(A_2-A_1)}
 ((A_1 - C_{center})_x (C_{center} + A_2)_y - (A_1 - C_{center})_y (C_{center} + A_2)_x)(A_2 - A_1)_x  + |(A_2 - A_1)_y|\sqrt{(C_{radius}^2(A_2 - A_1)(A_2-A_1) - \left((A_1 - C_{center})_x (C_{center} + A_2)_y - (A_1 - C_{center})_y (C_{center} + A_2)_x\right)^2)} \\
 0\\
 \end{bmatrix}
-\\
+$$
+
+$$
 I_2(A_1, A_2, C) = C_{center} + \frac{1}{(A_2 - A_1)(A_2-A_1)}
  \begin{bmatrix}
 ((A_1 - C_{center})_x (C_{center} + A_2)_y - (A_1 - C_{center})_y (C_{center} + A_2)_x)(A_2 - A_1)_y - sgn((A_2-A_1)_y)(A_2-A_1)_x\sqrt{(C_{radius}^2(A_2 - A_1)(A_2-A_1) - \left((A_1 - C_{center})_x (C_{center} + A_2)_y - (A_1 - C_{center})_y (C_{center} + A_2)_x\right)^2)}\\

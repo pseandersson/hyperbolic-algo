@@ -701,12 +701,12 @@ public class GeometricAnalysis {
     }
 
     public static <T extends Number> Vector3<T> randomUnitDiscPoint(SimpleMath<T> math) {
-        double r = Math.random();
+        T r = math.fromDouble(Math.random());
         double theta = Math.random() * 2 * Math.PI;
         return new Vector3<T>(
-                r * Math.cos(theta),
-                0.0,
-                r * Math.sin(theta),
+                math.multiply(r, math.fromDouble(Math.cos(theta))),
+                math.fromDouble(0.0),
+                math.multiply(r, math.fromDouble(Math.sin(theta))),
                 math);
     }
 
@@ -855,7 +855,7 @@ public class GeometricAnalysis {
         System.out.println("");
         System.out.println("$$");
         System.out.println("\\begin{array}{lcccc}");
-        System.out.println("\\text{Precision} & \\bar{\\varepsilon} & \\hat{\\varepsilon} & 0 & \\text{NaNs}\\\\");
+        System.out.println("\\text{Precision} & \\bar{\\lVert\\varepsilon\\rVert} & \\hat{\\lVert\\varepsilon\\rVert} & 0 & \\text{NaNs}\\\\");
         System.out.println("\\hline");
         System.out.println("\\text{single} & " + String.format("%.3e", ferror).replace("e", " \\cdot 10^{") + "} & "
                 + String.format("%.3e", fStats.maxError).replace("e", " \\cdot 10^{") + "} & " + fStats.zeroCount + " & " + fStats.nanCount
