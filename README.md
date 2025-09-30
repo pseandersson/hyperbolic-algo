@@ -192,7 +192,7 @@ Higher precisions decreases the error, it can be seen for all cases. The precisi
 
 $$
 \begin{equation}
-\lim_{precision \rightarrow \infin} \lVert \varepsilon \rVert \rightarrow 0.
+\lim_{precision \rightarrow \infty} \lVert \varepsilon \rVert \rightarrow 0.
 \end{equation}
 $$
 
