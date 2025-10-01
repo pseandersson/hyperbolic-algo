@@ -134,6 +134,9 @@ Points are generated with quadruple* precision and then downcast to double and s
 
 ### Simplifications
 
+
+#### Hyperbolic Circle
+
 The function $C_H(P,Q)$ was simplified using Maxima to become:
 
 $$
@@ -179,7 +182,32 @@ C_H(P,Q)=C\left(P\cdot\frac{Q \cdot Q - 1}{2 P\cdot Q - P\cdot P - 1}, Q\right)
 \end{equation}
 $$
 
+<!-- #### Circle-Circle Intersection
+
+An alternative computation method of the circle circle intersection to attempt to avoid a denominator in the squareroot, it is formulated from this expression:
+
+$$
+\begin{gather}
+I_{1,x} = \frac{\left( {G_y} - {F_y}\right)  \sqrt{ - {{{R_2}}^{2}} + 2 {R_1} {R_2} - {{{R_1}}^{2}} + {{{G_y}}^{2}} - 2 {F_y} {G_y} + {{{G_x}}^{2}} - 2 {F_x} {G_x} + {{{F_y}}^{2}} + {{{F_x}}^{2}}} \sqrt{{{{R_2}}^{2}} + 2 {R_1} {R_2} + {{{R_1}}^{2}} - {{{G_y}}^{2}} + 2 {F_y} {G_y} - {{{G_x}}^{2}} + 2 {F_x} {G_x} - {{{F_y}}^{2}} - {{{F_x}}^{2}}} + \left( {F_x} - {G_x}\right)  {{{R_2}}^{2}} + \left( {G_x} - {F_x}\right)  {{{R_1}}^{2}} + \left( {G_x} + {F_x}\right)  {{{G_y}}^{2}} + \left(  - \left( 2 {F_y} {G_x}\right)  - 2 {F_x} {F_y}\right)  {G_y} + {{{G_x}}^{3}} - {F_x} {{{G_x}}^{2}} + \left( {{{F_y}}^{2}} - {{{F_x}}^{2}}\right)  {G_x} + {F_x} {{{F_y}}^{2}} + {{{F_x}}^{3}}}{2 {{{G_y}}^{2}} - 4 {F_y} {G_y} + 2 {{{G_x}}^{2}} - 4 {F_x} {G_x} + 2 {{{F_y}}^{2}} + 2 {{{F_x}}^{2}}}\\
+I_{1,y} = -\left( \frac{\left( {G_x} - {F_x}\right)  \sqrt{ - {{{R_2}}^{2}} + 2 {R_1} {R_2} - {{{R_1}}^{2}} + {{{G_y}}^{2}} - 2 {F_y} {G_y} + {{{G_x}}^{2}} - 2 {F_x} {G_x} + {{{F_y}}^{2}} + {{{F_x}}^{2}}} \sqrt{{{{R_2}}^{2}} + 2 {R_1} {R_2} + {{{R_1}}^{2}} - {{{G_y}}^{2}} + 2 {F_y} {G_y} - {{{G_x}}^{2}} + 2 {F_x} {G_x} - {{{F_y}}^{2}} - {{{F_x}}^{2}}} + \left( {G_y} - {F_y}\right)  {{{R_2}}^{2}} + \left( {F_y} - {G_y}\right)  {{{R_1}}^{2}} - {{{G_y}}^{3}} + {F_y} {{{G_y}}^{2}} + \left(  - {{{G_x}}^{2}} + 2 {F_x} {G_x} + {{{F_y}}^{2}} - {{{F_x}}^{2}}\right)  {G_y} - {F_y} {{{G_x}}^{2}} + 2 {F_x} {F_y} {G_x} - {{{F_y}}^{3}} - {{{F_x}}^{2}} {F_y}}{2 {{{G_y}}^{2}} - 4 {F_y} {G_y} + 2 {{{G_x}}^{2}} - 4 {F_x} {G_x} + 2 {{{F_y}}^{2}} + 2 {{{F_x}}^{2}}}\right)
+\end{gather}
+$$
+
+with the circles $C(F, R_1 e_x + F)$ and $C(G, R_1 e_x + G)$ where $e_x$ is the unit vector of the $x$-axis by making substition as following.
+
+$$
+\begin{gather}
+p_1 : -(R_2 - R_1)^2 \\
+p_2 : (R_2 + R_1)^2 \\ 
+p_3 : (F_y-G_y)^2+(F_x-G_x)^2
+\end{gather}
+$$ -->
+
 ## Results
+
+*Simplified* means using the revised simplification of $C_H$ 
+<!-- and *intersection* means a revised circle-circle intersection
+algorithm. -->
 
 
 Errors for 100000 random points transformations $M_D(A,A,B,0)$:
@@ -188,9 +216,9 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 3.314 \cdot 10^{-04} & 1.499 \cdot 10^{+00} & 759 & 0\\
-\text{double} & 9.414 \cdot 10^{-12} & 3.221 \cdot 10^{-07} & 763&\\
-\text{quadruple}^* & 1.454 \cdot 10^{-34} & 5.247 \cdot 10^{-30} & 9240&\\
+\text{single} & 2.972 \cdot 10^{-04} & 1.888 \cdot 10^{+00} & 854 & 0\\
+\text{double} & 5.607 \cdot 10^{-12} & 3.448 \cdot 10^{-07} & 889&\\
+\text{quadruple}^* & 1.175 \cdot 10^{-34} & 8.686 \cdot 10^{-30} & 10386&\\
 \end{array}
 $$
 
@@ -201,11 +229,37 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 1.135 \cdot 10^{-05} & 3.445 \cdot 10^{-01} & 1743 & 0\\
-\text{double} & 2.304 \cdot 10^{-14} & 8.891 \cdot 10^{-10} & 1795&\\
-\text{quadruple}^* & 3.853 \cdot 10^{-37} & 7.959 \cdot 10^{-33} & 12029&\\
+\text{single} & 3.793 \cdot 10^{-06} & 7.303 \cdot 10^{-02} & 2043 & 0\\
+\text{double} & 9.979 \cdot 10^{-15} & 2.653 \cdot 10^{-10} & 2088&\\
+\text{quadruple}^* & 1.286 \cdot 10^{-37} & 2.331 \cdot 10^{-33} & 13581&\\
 \end{array}
 $$
+
+
+<!-- Errors for 100000 random points transformations intersection $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 2.974 \cdot 10^{-04} & 1.888 \cdot 10^{+00} & 875 & 0\\
+\text{double} & 5.603 \cdot 10^{-12} & 3.447 \cdot 10^{-07} & 853&\\
+\text{quadruple}^* & 1.175 \cdot 10^{-34} & 8.686 \cdot 10^{-30} & 10523&\\
+\end{array}
+$$
+
+
+Errors for 100000 random points transformations intersection and simplified $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 6.295 \cdot 10^{-06} & 1.917 \cdot 10^{-01} & 2131 & 0\\
+\text{double} & 1.186 \cdot 10^{-14} & 2.580 \cdot 10^{-10} & 2010&\\
+\text{quadruple}^* & 1.246 \cdot 10^{-37} & 2.383 \cdot 10^{-33} & 13769&\\
+\end{array}
+$$ -->
 
 
 Errors for 100000 random points transformations $M_D(A,0,\xi,0)$:
@@ -214,9 +268,9 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.351 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 1.470 \cdot 10^{-09} & 4.908 \cdot 10^{-05} & 0&\\
-\text{quadruple}^* & 2.108 \cdot 10^{-32} & 9.288 \cdot 10^{-28} & 15&\\
+\text{single} & 7.500 \cdot 10^{-02} & 1.981 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 6.599 \cdot 10^{-10} & 1.018 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 1.467 \cdot 10^{-32} & 5.504 \cdot 10^{-28} & 20&\\
 \end{array}
 $$
 
@@ -227,11 +281,37 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.213 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 1.336 \cdot 10^{-09} & 5.394 \cdot 10^{-05} & 0&\\
-\text{quadruple}^* & 1.612 \cdot 10^{-32} & 4.787 \cdot 10^{-28} & 24&\\
+\text{single} & 7.383 \cdot 10^{-02} & 1.986 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 9.531 \cdot 10^{-10} & 2.488 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 9.952 \cdot 10^{-33} & 2.896 \cdot 10^{-28} & 35&\\
 \end{array}
 $$
+
+
+<!-- Errors for 100000 random points transformations intersection $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 7.546 \cdot 10^{-02} & 1.986 \cdot 10^{+00} & 1 & 0\\
+\text{double} & 7.860 \cdot 10^{-10} & 1.542 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 1.560 \cdot 10^{-32} & 5.865 \cdot 10^{-28} & 13&\\
+\end{array}
+$$
+
+
+Errors for 100000 random points transformations intersection and simplified $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 7.360 \cdot 10^{-02} & 1.986 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 7.543 \cdot 10^{-10} & 1.105 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 9.959 \cdot 10^{-33} & 1.226 \cdot 10^{-28} & 24&\\
+\end{array}
+$$ -->
 
 
 Errors for 100000 colinear points transformations $M_D(A,A,B,0)$:
@@ -240,9 +320,9 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 3.314 \cdot 10^{-04} & 1.499 \cdot 10^{+00} & 759 & 0\\
-\text{double} & 9.414 \cdot 10^{-12} & 3.221 \cdot 10^{-07} & 763&\\
-\text{quadruple}^* & 1.454 \cdot 10^{-39} & 5.247 \cdot 10^{-30} & 9240&\\
+\text{single} & 4.004 \cdot 10^{-06} & 1.148 \cdot 10^{-01} & 3274 & 0\\
+\text{double} & 6.422 \cdot 10^{-15} & 1.201 \cdot 10^{-10} & 3342&\\
+\text{quadruple}^* & 1.365 \cdot 10^{-37} & 5.652 \cdot 10^{-33} & 3814&\\
 \end{array}
 $$
 
@@ -253,11 +333,37 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 1.135 \cdot 10^{-05} & 3.445 \cdot 10^{-01} & 1743 & 0\\
-\text{double} & 2.304 \cdot 10^{-14} & 8.891 \cdot 10^{-10} & 1795&\\
-\text{quadruple}^* & 3.853 \cdot 10^{-42} & 7.959 \cdot 10^{-33} & 12029&\\
+\text{single} & 4.358 \cdot 10^{-06} & 1.376 \cdot 10^{-01} & 2584 & 0\\
+\text{double} & 1.070 \cdot 10^{-14} & 5.033 \cdot 10^{-10} & 2590&\\
+\text{quadruple}^* & 1.013 \cdot 10^{-37} & 4.507 \cdot 10^{-33} & 2809&\\
 \end{array}
 $$
+
+
+<!-- Errors for 100000 colinear points transformations intersection $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 3.066 \cdot 10^{-06} & 1.107 \cdot 10^{-01} & 3532 & 0\\
+\text{double} & 5.112 \cdot 10^{-15} & 1.135 \cdot 10^{-10} & 3616&\\
+\text{quadruple}^* & 1.254 \cdot 10^{-37} & 6.045 \cdot 10^{-33} & 4024&\\
+\end{array}
+$$
+
+
+Errors for 100000 colinear points transformations intersection and simplified $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 3.751 \cdot 10^{-06} & 8.000 \cdot 10^{-02} & 2751 & 0\\
+\text{double} & 4.223 \cdot 10^{-15} & 6.417 \cdot 10^{-11} & 2772&\\
+\text{quadruple}^* & 7.195 \cdot 10^{-38} & 1.816 \cdot 10^{-33} & 3003&\\
+\end{array}
+$$ -->
 
 
 Errors for 100000 colinear points transformations $M_D(A,0,\xi,0)$:
@@ -266,9 +372,9 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.351 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 1.470 \cdot 10^{-09} & 4.908 \cdot 10^{-05} & 0&\\
-\text{quadruple}^* & 2.108 \cdot 10^{-37} & 9.288 \cdot 10^{-28} & 15&\\
+\text{single} & 1.508 \cdot 10^{-02} & 1.890 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.162 \cdot 10^{-08} & 7.530 \cdot 10^{-04} & 0&\\
+\text{quadruple}^* & 2.286 \cdot 10^{-31} & 1.473 \cdot 10^{-26} & 1&\\
 \end{array}
 $$
 
@@ -279,11 +385,37 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.213 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 1.336 \cdot 10^{-09} & 5.394 \cdot 10^{-05} & 0&\\
-\text{quadruple}^* & 1.612 \cdot 10^{-37} & 4.787 \cdot 10^{-28} & 24&\\
+\text{single} & 6.258 \cdot 10^{-03} & 1.991 \cdot 10^{+00} & 5 & 0\\
+\text{double} & 8.697 \cdot 10^{-12} & 1.628 \cdot 10^{-07} & 5&\\
+\text{quadruple}^* & 1.015 \cdot 10^{-34} & 1.277 \cdot 10^{-30} & 5&\\
 \end{array}
 $$
+
+
+<!-- Errors for 100000 colinear points transformations intersection $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 1.506 \cdot 10^{-02} & 1.803 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.161 \cdot 10^{-08} & 7.530 \cdot 10^{-04} & 0&\\
+\text{quadruple}^* & 2.285 \cdot 10^{-31} & 1.473 \cdot 10^{-26} & 1&\\
+\end{array}
+$$
+
+
+Errors for 100000 colinear points transformations intersection and simplified $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 6.279 \cdot 10^{-03} & 1.998 \cdot 10^{+00} & 7 & 0\\
+\text{double} & 1.031 \cdot 10^{-11} & 1.351 \cdot 10^{-07} & 2&\\
+\text{quadruple}^* & 1.032 \cdot 10^{-34} & 1.696 \cdot 10^{-30} & 1&\\
+\end{array}
+$$ -->
 
 
 
@@ -299,6 +431,8 @@ $$
 The number of zeros column and the NaN column, those numbers are excluded from the averaging. The averaging is of 100000 points, so that the total number of samples is then 100000 plus the zero and NaN count.
 
 The simplified version does produce more zero-value results which support the hypothesis of being a numerical hard problem.
+
+The intersection version does not make a consistent improvement. There is not so much simplification as it is in simplified version, so it is hard to say if it performs better or worse. It has therefore been let out from the result table for readability, but can be found in the source of this document.
 
 The high error in the single precision case have not been investigated, and is to be considered a todo item.
 
