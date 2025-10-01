@@ -490,10 +490,10 @@ class TransformHB<T extends Number> {
     private Circle<T> circle0;
     private Circle<T> circle1;
 
-    TransformHB(Vector3<T> from, Vector3<T> to) {
+    TransformHB(Vector3<T> from, Vector3<T> to, HyperbolicCircleFactory<T> factory) {
         Vector3<T> half = to.plus(from).mul(from.math.fromDouble(0.5));
-        circle0 = GeometricAnalysis.moveCircle(from, half);
-        circle1 = GeometricAnalysis.moveCircle(half, to);
+        circle0 = GeometricAnalysis.moveCircle(from, half, factory);
+        circle1 = GeometricAnalysis.moveCircle(half, to, factory);
     }
 
     public Vector3<T> translate(Vector3<T> p) {
@@ -504,6 +504,10 @@ class TransformHB<T extends Number> {
             return circle1.reflect(circle0.reflect(p));
         }
     }
+}
+
+interface HyperbolicCircleFactory<T extends Number> {
+    Circle<T> create(Vector3<T> center, Vector3<T> point);
 }
 
 class HyperbolicCircle<T extends Number> extends Circle<T> {
@@ -535,6 +539,22 @@ class HyperbolicCircle<T extends Number> extends Circle<T> {
             this.center = GeometricAnalysis.lineLineIntersection(center.zero(), center, point, point.plus(pointT));
             this.radius = this.center.distanceTo(point);
         }
+    }
+}
+
+class HyperbolicCircleV2<T extends Number> extends Circle<T> {
+
+    HyperbolicCircleV2(Vector3<T> center, Vector3<T> point) {
+        super(center.zero(), point.math.fromDouble(0.0)); // Temporary initialization
+
+        this.center = center.mul(
+                math.subtract(point.dot(point), math.fromDouble(1.0))).div(
+                        math.subtract(
+                                math.subtract(
+                                        math.multiply(center.dot(point), math.fromDouble(2.0)),
+                                        center.dot(center)),
+                                math.fromDouble(1.0)));
+        this.radius = this.center.distanceTo(point);
     }
 }
 
@@ -583,6 +603,36 @@ class ErrorStats<T extends Number> {
 
 }
 
+class ErrorSummary {
+    public ErrorStats<Quadruple> qStats;
+    public ErrorStats<Quadruple> qzStats;
+    public ErrorStats<Quadruple> qStatsV2;
+    public ErrorStats<Quadruple> qzStatsV2;
+    public ErrorStats<Double> dStats;
+    public ErrorStats<Double> dzStats;
+    public ErrorStats<Double> dStatsV2;
+    public ErrorStats<Double> dzStatsV2;
+    public ErrorStats<Float> fStats;
+    public ErrorStats<Float> fzStats;
+    public ErrorStats<Float> fStatsV2;
+    public ErrorStats<Float> fzStatsV2;
+
+    public ErrorSummary() {
+        this.qStats = new ErrorStats<Quadruple>(Vector3.QUADRUPLE_MATH);
+        this.qzStats = new ErrorStats<Quadruple>(Vector3.QUADRUPLE_MATH);
+        this.qStatsV2 = new ErrorStats<Quadruple>(Vector3.QUADRUPLE_MATH);
+        this.qzStatsV2 = new ErrorStats<Quadruple>(Vector3.QUADRUPLE_MATH);
+        this.dStats = new ErrorStats<Double>(Vector3.DOUBLE_MATH);
+        this.dzStats = new ErrorStats<Double>(Vector3.DOUBLE_MATH);
+        this.dStatsV2 = new ErrorStats<Double>(Vector3.DOUBLE_MATH);
+        this.dzStatsV2 = new ErrorStats<Double>(Vector3.DOUBLE_MATH);
+        this.fStats = new ErrorStats<Float>(Vector3.FLOAT_MATH);
+        this.fzStats = new ErrorStats<Float>(Vector3.FLOAT_MATH);
+        this.fStatsV2 = new ErrorStats<Float>(Vector3.FLOAT_MATH);
+        this.fzStatsV2 = new ErrorStats<Float>(Vector3.FLOAT_MATH);
+    }
+}
+
 public class GeometricAnalysis {
     public static <T extends Number> boolean isColinear(Vector3<T> p1, Vector3<T> p2) {
         SimpleMath<T> math = p1.math;
@@ -591,6 +641,14 @@ public class GeometricAnalysis {
 
     public static <T extends Number> Circle<T> twoPointCircle(Vector3<T> o, Vector3<T> p) {
         return new Circle<T>(o, o.distanceTo(p));
+    }
+
+    public static <T extends Number> Circle<T> createHyperbolicCircle(Vector3<T> center, Vector3<T> point) {
+        return new HyperbolicCircle<T>(center, point);
+    }
+
+    public static <T extends Number> Circle<T> createHyperbolicCircleV2(Vector3<T> center, Vector3<T> point) {
+        return new HyperbolicCircleV2<T>(center, point);
     }
 
     public static <T extends Number> Circle<T> hyperbolicLine(Vector3<T> p1, Vector3<T> p2) {
@@ -687,9 +745,10 @@ public class GeometricAnalysis {
                 ab.normalized().mul(scale1).plus(circle2.center).minus(n.mul(scale2)));
     }
 
-    public static <T extends Number> HyperbolicSegment<T> moveCircle(Vector3<T> p1, Vector3<T> p2) {
-        Circle<T> hc1 = new HyperbolicCircle<T>(p1, p2);
-        Circle<T> hc2 = new HyperbolicCircle<T>(p2, p1);
+    public static <T extends Number> HyperbolicSegment<T> moveCircle(Vector3<T> p1, Vector3<T> p2,
+            HyperbolicCircleFactory<T> factory) {
+        Circle<T> hc1 = factory.create(p1, p2);
+        Circle<T> hc2 = factory.create(p2, p1);
 
         IntersectionResult<T> result = circleCircleIntersection(hc1, hc2);
         HyperbolicSegment<T> segment = new HyperbolicSegment<T>(result.intersection1, result.intersection2);
@@ -710,7 +769,8 @@ public class GeometricAnalysis {
                 math);
     }
 
-    public static <T extends Number> Vector3<T> zeroToPointTransform(Vector3<T> p0, Vector3<T> p1) {
+    public static <T extends Number> Vector3<T> zeroToPointTransform(Vector3<T> p0, Vector3<T> p1,
+            HyperbolicCircleFactory<T> factory) {
         // p0 - point to translate
         // p1 - target of translation
         final SimpleMath<T> math = p0.math;
@@ -722,14 +782,14 @@ public class GeometricAnalysis {
         Vector3<T> r2 = r0.minus(rn);
 
         // transformation from p0 to p1
-        HyperbolicSegment<T> move0P1 = moveCircle(p0, r0);
-        HyperbolicSegment<T> move0P2 = moveCircle(r0, p1);
+        HyperbolicSegment<T> move0P1 = moveCircle(p0, r0, factory);
+        HyperbolicSegment<T> move0P2 = moveCircle(r0, p1, factory);
 
-        HyperbolicSegment<T> move1P1 = moveCircle(p0, r1);
-        HyperbolicSegment<T> move1P2 = moveCircle(r1, p1);
+        HyperbolicSegment<T> move1P1 = moveCircle(p0, r1, factory);
+        HyperbolicSegment<T> move1P2 = moveCircle(r1, p1, factory);
 
-        HyperbolicSegment<T> move2P1 = moveCircle(p0, r2);
-        HyperbolicSegment<T> move2P2 = moveCircle(r2, p1);
+        HyperbolicSegment<T> move2P1 = moveCircle(p0, r2, factory);
+        HyperbolicSegment<T> move2P2 = moveCircle(r2, p1, factory);
 
         // Construct the domain (circle) on which the solution exists on
         Vector3<T> z1 = p1.zero();
@@ -772,81 +832,117 @@ public class GeometricAnalysis {
         return !seg1.isColinear && !seg2.isColinear;
     }
 
-    private static <T extends Number> T transformError(Vector3<T> p0, Vector3<T> p1) {
-        return (new TransformHB<T>(p0, p1)).translate(p0).minus(p1).length();
+    private static <T extends Number> T transformError(Vector3<T> p0, Vector3<T> p1,
+            HyperbolicCircleFactory<T> factory) {
+        return (new TransformHB<T>(p0, p1, factory)).translate(p0).minus(p1).length();
     }
 
-    private static <T extends Number> T transformFromZeroError(Vector3<T> p0, Vector3<T> p1) {
-        return (new TransformHB<T>(p0.zero(), zeroToPointTransform(p0, p1))).translate(p0).minus(p1).length();
+    private static <T extends Number> T transformFromZeroError(Vector3<T> p0, Vector3<T> p1,
+            HyperbolicCircleFactory<T> factory) {
+        return (new TransformHB<T>(p0.zero(), zeroToPointTransform(p0, p1, factory), factory)).translate(p0).minus(p1)
+                .length();
     }
 
-    private static boolean evaluateTransforms(Vector3<Quadruple> q0, Vector3<Quadruple> q1, ErrorStats<Quadruple> qStats,
-            ErrorStats<Quadruple> qzStats, ErrorStats<Double> dStats, ErrorStats<Double> dzStats,
-            ErrorStats<Float> fStats, ErrorStats<Float> fzStats) {
+    private static boolean evaluateTransforms(Vector3<Quadruple> q0, Vector3<Quadruple> q1, ErrorSummary summary) {
         // Compute error metrics
-        Quadruple qerror = transformError(q0, q1);
-        Quadruple qzerror = transformFromZeroError(q0, q1);
+        Quadruple qerror = transformError(q0, q1, GeometricAnalysis::createHyperbolicCircle);
+        Quadruple qzerror = transformFromZeroError(q0, q1, GeometricAnalysis::createHyperbolicCircle);
+        Quadruple qerrorV2 = transformError(q0, q1, GeometricAnalysis::createHyperbolicCircleV2);
+        Quadruple qzerrorV2 = transformFromZeroError(q0, q1, GeometricAnalysis::createHyperbolicCircleV2);
 
         Vector3<Double> d0 = new Vector3<Double>(q0.x.doubleValue(), q0.y.doubleValue(), q0.z.doubleValue(),
                 Vector3.DOUBLE_MATH);
         Vector3<Double> d1 = new Vector3<Double>(q1.x.doubleValue(), q1.y.doubleValue(), q1.z.doubleValue(),
                 Vector3.DOUBLE_MATH);
-        Double derror = transformError(d0, d1);
-        Double dzerror = transformFromZeroError(d0, d1);
+        Double derror = transformError(d0, d1, GeometricAnalysis::createHyperbolicCircle);
+        Double dzerror = transformFromZeroError(d0, d1, GeometricAnalysis::createHyperbolicCircle);
+        Double derrorV2 = transformError(d0, d1, GeometricAnalysis::createHyperbolicCircleV2);
+        Double dzerrorV2 = transformFromZeroError(d0, d1, GeometricAnalysis::createHyperbolicCircleV2);
 
         Vector3<Float> f0 = new Vector3<Float>(q0.x.floatValue(), q0.y.floatValue(), q0.z.floatValue(),
                 Vector3.FLOAT_MATH);
         Vector3<Float> f1 = new Vector3<Float>(q1.x.floatValue(), q1.y.floatValue(), q1.z.floatValue(),
                 Vector3.FLOAT_MATH);
-        Float ferror = transformError(f0, f1);
-        Float fzerror = transformFromZeroError(f0, f1);
+        Float ferror = transformError(f0, f1, GeometricAnalysis::createHyperbolicCircle);
+        Float fzerror = transformFromZeroError(f0, f1, GeometricAnalysis::createHyperbolicCircle);
+        Float ferrorV2 = transformError(f0, f1, GeometricAnalysis::createHyperbolicCircleV2);
+        Float fzerrorV2 = transformFromZeroError(f0, f1, GeometricAnalysis::createHyperbolicCircleV2);
 
         // Validate results
         if (ferror.isNaN()) {
             System.out.println("Coordinate: " + f0 + " to " + f1 + " caused NaN error");
-            fStats.nanCount++;
+            summary.fStats.nanCount++;
             return false;
         }
         if (fzerror.isNaN()) {
             System.out.println("Coordinate: " + f0 + " to " + f1 + " caused NaN error");
-            fzStats.nanCount++;
+            summary.fzStats.nanCount++;
             return false;
         }
         if (qerror.equals(new Quadruple(0.0)))
-            qStats.zeroCount++;
+            summary.qStats.zeroCount++;
         if (qzerror.equals(new Quadruple(0.0)))
-            qzStats.zeroCount++;
+            summary.qzStats.zeroCount++;
+        if (qerrorV2.equals(new Quadruple(0.0)))
+            summary.qStatsV2.zeroCount++;
+        if (qzerrorV2.equals(new Quadruple(0.0)))
+            summary.qzStatsV2.zeroCount++;
         if (derror.equals(0.0))
-            dStats.zeroCount++;
+            summary.dStats.zeroCount++;
         if (dzerror.equals(0.0))
-            dzStats.zeroCount++;
+            summary.dzStats.zeroCount++;
+        if (derrorV2.equals(0.0))
+            summary.dStatsV2.zeroCount++;
+        if (dzerrorV2.equals(0.0))
+            summary.dzStatsV2.zeroCount++;
         if (ferror.equals(0.0f))
-            fStats.zeroCount++;
+            summary.fStats.zeroCount++;
         if (fzerror.equals(0.0f))
-            fzStats.zeroCount++;
-        if (qerror.equals(new Quadruple(0.0)) || qzerror.equals(new Quadruple(0.0)) || derror.equals(0.0)
-                || dzerror.equals(0.0) || ferror.equals(0.0f) || fzerror.equals(0.0f)) {
+            summary.fzStats.zeroCount++;
+        if (ferrorV2.equals(0.0f))
+            summary.fStatsV2.zeroCount++;
+        if (fzerrorV2.equals(0.0f))
+            summary.fzStatsV2.zeroCount++;
+        if (qerror.equals(new Quadruple(0.0)) || qzerror.equals(new Quadruple(0.0)) ||
+                qerrorV2.equals(new Quadruple(0.0)) || qzerrorV2.equals(new Quadruple(0.0)) ||
+                derror.equals(0.0) || dzerror.equals(0.0) ||
+                derrorV2.equals(0.0) || dzerrorV2.equals(0.0) ||
+                ferror.equals(0.0f) || fzerror.equals(0.0f) ||
+                ferrorV2.equals(0.0f) || fzerrorV2.equals(0.0f)) {
             return false;
         }
 
         // Gather statistics
-        qStats.errorSum = Quadruple.add(qStats.errorSum, qerror);
-        qzStats.errorSum = Quadruple.add(qzStats.errorSum, qzerror);
-        dStats.errorSum += derror;
-        dzStats.errorSum += dzerror;
-        fStats.errorSum += ferror;
-        fzStats.errorSum += fzerror;
-        qStats.maxError = Quadruple.max(qStats.maxError , qerror);
-        qzStats.maxError = Quadruple.max(qzStats.maxError, qzerror);
-        dStats.maxError = Math.max(dStats.maxError, derror);
-        dzStats.maxError = Math.max(dzStats.maxError, dzerror);
-        fStats.maxError = Math.max(fStats.maxError, ferror);
-        fzStats.maxError = Math.max(fzStats.maxError, fzerror);
+        summary.qStats.errorSum = Quadruple.add(summary.qStats.errorSum, qerror);
+        summary.qzStats.errorSum = Quadruple.add(summary.qzStats.errorSum, qzerror);
+        summary.qStatsV2.errorSum = Quadruple.add(summary.qStatsV2.errorSum, qerrorV2);
+        summary.qzStatsV2.errorSum = Quadruple.add(summary.qzStatsV2.errorSum, qzerrorV2);
+        summary.dStats.errorSum += derror;
+        summary.dzStats.errorSum += dzerror;
+        summary.dStatsV2.errorSum += derrorV2;
+        summary.dzStatsV2.errorSum += dzerrorV2;
+        summary.fStats.errorSum += ferror;
+        summary.fzStats.errorSum += fzerror;
+        summary.fStatsV2.errorSum += ferrorV2;
+        summary.fzStatsV2.errorSum += fzerrorV2;
+        summary.qStats.maxError = Quadruple.max(summary.qStats.maxError, qerror);
+        summary.qzStats.maxError = Quadruple.max(summary.qzStats.maxError, qzerror);
+        summary.qStatsV2.maxError = Quadruple.max(summary.qStatsV2.maxError, qerrorV2);
+        summary.qzStatsV2.maxError = Quadruple.max(summary.qzStatsV2.maxError, qzerrorV2);
+        summary.dStats.maxError = Math.max(summary.dStats.maxError, derror);
+        summary.dzStats.maxError = Math.max(summary.dzStats.maxError, dzerror);
+        summary.dStatsV2.maxError = Math.max(summary.dStatsV2.maxError, derrorV2);
+        summary.dzStatsV2.maxError = Math.max(summary.dzStatsV2.maxError, dzerrorV2);
+        summary.fStats.maxError = Math.max(summary.fStats.maxError, ferror);
+        summary.fzStats.maxError = Math.max(summary.fzStats.maxError, fzerror);
+        summary.fStatsV2.maxError = Math.max(summary.fStatsV2.maxError, ferrorV2);
+        summary.fzStatsV2.maxError = Math.max(summary.fzStatsV2.maxError, fzerrorV2);
 
         return true;
     }
 
-    private static void printStats(String label, ErrorStats<Float> fStats, ErrorStats<Double> dStats, ErrorStats<Quadruple> qStats, int n) {
+    private static void printStats(String label, ErrorStats<Float> fStats, ErrorStats<Double> dStats,
+            ErrorStats<Quadruple> qStats, int n) {
         Float ferror = fStats.errorSum / n;
         Double derror = dStats.errorSum / n;
         Quadruple qerror = qStats.errorSum.divide(new Quadruple(n));
@@ -855,15 +951,18 @@ public class GeometricAnalysis {
         System.out.println("");
         System.out.println("$$");
         System.out.println("\\begin{array}{lcccc}");
-        System.out.println("\\text{Precision} & \\bar{\\lVert\\varepsilon\\rVert} & \\hat{\\lVert\\varepsilon\\rVert} & 0 & \\text{NaNs}\\\\");
+        System.out.println(
+                "\\text{Precision} & \\bar{\\lVert\\varepsilon\\rVert} & \\hat{\\lVert\\varepsilon\\rVert} & 0 & \\text{NaNs}\\\\");
         System.out.println("\\hline");
         System.out.println("\\text{single} & " + String.format("%.3e", ferror).replace("e", " \\cdot 10^{") + "} & "
-                + String.format("%.3e", fStats.maxError).replace("e", " \\cdot 10^{") + "} & " + fStats.zeroCount + " & " + fStats.nanCount
+                + String.format("%.3e", fStats.maxError).replace("e", " \\cdot 10^{") + "} & " + fStats.zeroCount
+                + " & " + fStats.nanCount
                 + "\\\\");
         System.out.println("\\text{double} & " + String.format("%.3e", derror).replace("e", " \\cdot 10^{") + "} & "
-                + String.format("%.3e", dStats.maxError).replace("e", " \\cdot 10^{") + "} & " + dStats.zeroCount +"&\\\\");
+                + String.format("%.3e", dStats.maxError).replace("e", " \\cdot 10^{") + "} & " + dStats.zeroCount
+                + "&\\\\");
         System.out.println("\\text{quadruple}^* & " + qerror.format("%.3e").replace("e", " \\cdot 10^{") + "} & "
-                + qStats.maxError.format("%.3e").replace("e", " \\cdot 10^{") + "} & " + qStats.zeroCount +"&\\\\");
+                + qStats.maxError.format("%.3e").replace("e", " \\cdot 10^{") + "} & " + qStats.zeroCount + "&\\\\");
         System.out.println("\\end{array}");
         System.out.println("$$");
         System.out.println("");
@@ -875,30 +974,18 @@ public class GeometricAnalysis {
         int n = 100000;
         int retries = 0;
 
-        ErrorStats<Quadruple> qStats = new ErrorStats<>(Vector3.QUADRUPLE_MATH);
-        ErrorStats<Quadruple> qzStats = new ErrorStats<>(Vector3.QUADRUPLE_MATH);
-        ErrorStats<Double> dStats = new ErrorStats<>(Vector3.DOUBLE_MATH);
-        ErrorStats<Double> dzStats = new ErrorStats<>(Vector3.DOUBLE_MATH);
-        ErrorStats<Float> fStats = new ErrorStats<>(Vector3.FLOAT_MATH);
-        ErrorStats<Float> fzStats = new ErrorStats<>(Vector3.FLOAT_MATH);
+        ErrorSummary summary = new ErrorSummary();
+        ErrorSummary colinear = new ErrorSummary();
 
         for (int i = 0; i - retries < n; i++) {
             Vector3<Quadruple> q0 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
             Vector3<Quadruple> q1 = randomUnitDiscPoint(Vector3.QUADRUPLE_MATH);
-            if (!evaluateTransforms(q0, q1, qStats, qzStats, dStats, dzStats, fStats, fzStats)) {
+            if (!evaluateTransforms(q0, q1, summary)) {
                 retries++;
             }
         }
 
-        printStats("Errors for " + n + " random points transformations $M_D(A,A,B,0)$:", fStats, dStats, qStats, n);
-        printStats("Errors for " + n + " random points transformations $M_D(A,0,\\xi,0)$:", fzStats, dzStats, qzStats, n);
-        
-        fStats.reset();
-        fzStats.reset();
-        dStats.reset();
-        dzStats.reset();
-        qStats.reset();
-        qzStats.reset();
+        retries = 0;
 
         for (int i = 0; i - retries < n; i++) {
             // Generate two colinear points by scaling a random direction
@@ -907,12 +994,27 @@ public class GeometricAnalysis {
             double scale2 = Math.random();
             Vector3<Quadruple> q0 = dir.mul(new Quadruple(scale1));
             Vector3<Quadruple> q1 = dir.mul(new Quadruple(scale2));
-            if (!evaluateTransforms(q0, q1, qStats, qzStats, dStats, dzStats, fStats, fzStats)) {
+            if (!evaluateTransforms(q0, q1, colinear)) {
                 retries++;
             }
         }
 
-        printStats("Errors for " + n + " colinear points transformations $M_D(A,A,B,0)$:", fStats, dStats, qStats, n);
-        printStats("Errors for " + n + " colinear points transformations $M_D(A,0,\\xi,0)$:", fzStats, dzStats, qzStats, n);
+        printStats("Errors for " + n + " random points transformations $M_D(A,A,B,0)$:", summary.fStats, summary.dStats,
+                summary.qStats, n);
+        printStats("Errors for " + n + " random points transformations simplified $M_D(A,A,B,0)$:", summary.fStatsV2,
+                summary.dStatsV2, summary.qStatsV2, n);
+        printStats("Errors for " + n + " random points transformations $M_D(A,0,\\xi,0)$:", summary.fzStats,
+                summary.dzStats, summary.qzStats, n);
+        printStats("Errors for " + n + " random points transformations simplified $M_D(A,0,\\xi,0)$:",
+                summary.fzStatsV2, summary.dzStatsV2, summary.qzStatsV2, n);
+
+        printStats("Errors for " + n + " colinear points transformations $M_D(A,A,B,0)$:", summary.fStats,
+                summary.dStats, summary.qStats, n);
+        printStats("Errors for " + n + " colinear points transformations simplified $M_D(A,A,B,0)$:", summary.fStatsV2,
+                summary.dStatsV2, summary.qStatsV2, n);
+        printStats("Errors for " + n + " colinear points transformations $M_D(A,0,\\xi,0)$:", summary.fzStats,
+                summary.dzStats, summary.qzStats, n);
+        printStats("Errors for " + n + " colinear points transformations simplified $M_D(A,0,\\xi,0)$:",
+                summary.fzStatsV2, summary.dzStatsV2, summary.qzStatsV2, n);
     }
 }

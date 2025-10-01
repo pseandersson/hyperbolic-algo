@@ -132,6 +132,53 @@ $\gamma_1$ and $\gamma_2$ was set to 0.001 respectively -0.001 to keep some nume
 
 Points are generated with quadruple* precision and then downcast to double and single precision. For colinear points, a direction first sampled and then scaled with two different sampled values in range $[0,1]$.
 
+### Simplifications
+
+The function $C_H(P,Q)$ was simplified using Maxima to become:
+
+$$
+\begin{equation}
+C_H(P,Q) = C(I(O,P,Q, Q + Z\times(Q - C(P,Q, R(Q, C_U)))), Q) = C\left(P\cdot\frac{(Q \cdot Q - 1)}{(2 P\cdot Q - P\cdot P - 1)}, Q\right)
+\end{equation}
+$$
+
+For the colinear case:
+
+$$
+\begin{equation}
+C_H(P,\delta P) = C\left(P\cdot\frac{\delta^2 P \cdot P - 1}{2 \delta P\cdot P - P\cdot P - 1}, \delta P\right)
+\end{equation}
+$$
+
+it is necessary to investigate the denominator $2 \delta P\cdot P - P\cdot P - 1 = 0$ to avoid an 0 denominator. Solving for $\delta$ gives following:
+
+$$
+\begin{equation}
+\delta = \frac{P_y^2+P_x^2+1}{2 (P_y^2 +  P_x^2)} =\frac{\lVert P \rVert^2 + 1}{2 \lVert P \rVert^2}
+\end{equation}
+$$
+
+Since all points in the pointcaré disk model lies within the unit-circle, it is possible to show that $\delta$ will only be reached iff the point is outside the pointcaré disk:
+
+$$
+\begin{gather}
+\lVert \delta \cdot P \rVert^2 \geq 1 \\
+\left(\frac{\lVert P \rVert^2 + 1}{2 \lVert P \rVert^2}\right)^2\lVert P \rVert^2 \geq 1 \\
+\frac{(\lVert P \rVert^2 + 1)^2}{4 \lVert P \rVert^2} \geq 1 \\
+(\lVert P \rVert^2 + 1)^2 \geq 4 \lVert P \rVert^2 \\
+x = \lVert P \rVert^2, \quad 0 \leq x < 1 \implies \\
+(x + 1)^2 \gt 4x 
+\end{gather}
+$$
+
+Therefore it is possible to just simplify the expression to:
+
+$$
+\begin{equation}
+C_H(P,Q)=C\left(P\cdot\frac{Q \cdot Q - 1}{2 P\cdot Q - P\cdot P - 1}, Q\right)
+\end{equation}
+$$
+
 ## Results
 
 
@@ -141,9 +188,22 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 2.233 \cdot 10^{-04} & 1.607 \cdot 10^{+00} & 654 & 0\\
-\text{double} & 6.719 \cdot 10^{-11} & 6.622 \cdot 10^{-06} & 714&\\
-\text{quadruple}^* & 5.795 \cdot 10^{-33} & 5.790 \cdot 10^{-28} & 8083&\\
+\text{single} & 3.314 \cdot 10^{-04} & 1.499 \cdot 10^{+00} & 759 & 0\\
+\text{double} & 9.414 \cdot 10^{-12} & 3.221 \cdot 10^{-07} & 763&\\
+\text{quadruple}^* & 1.454 \cdot 10^{-34} & 5.247 \cdot 10^{-30} & 9240&\\
+\end{array}
+$$
+
+
+Errors for 100000 random points transformations simplified $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 1.135 \cdot 10^{-05} & 3.445 \cdot 10^{-01} & 1743 & 0\\
+\text{double} & 2.304 \cdot 10^{-14} & 8.891 \cdot 10^{-10} & 1795&\\
+\text{quadruple}^* & 3.853 \cdot 10^{-37} & 7.959 \cdot 10^{-33} & 12029&\\
 \end{array}
 $$
 
@@ -154,9 +214,22 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 7.382 \cdot 10^{-02} & 1.977 \cdot 10^{+00} & 0 & 0\\
-\text{double} & 5.740 \cdot 10^{-10} & 7.253 \cdot 10^{-06} & 0&\\
-\text{quadruple}^* & 1.384 \cdot 10^{-32} & 7.056 \cdot 10^{-28} & 7&\\
+\text{single} & 7.351 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.470 \cdot 10^{-09} & 4.908 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 2.108 \cdot 10^{-32} & 9.288 \cdot 10^{-28} & 15&\\
+\end{array}
+$$
+
+
+Errors for 100000 random points transformations simplified $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 7.213 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.336 \cdot 10^{-09} & 5.394 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 1.612 \cdot 10^{-32} & 4.787 \cdot 10^{-28} & 24&\\
 \end{array}
 $$
 
@@ -167,9 +240,22 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 3.326 \cdot 10^{-06} & 1.885 \cdot 10^{-01} & 3114 & 0\\
-\text{double} & 3.402 \cdot 10^{-15} & 8.645 \cdot 10^{-11} & 3142&\\
-\text{quadruple}^* & 8.550 \cdot 10^{-38} & 3.189 \cdot 10^{-33} & 3580&\\
+\text{single} & 3.314 \cdot 10^{-04} & 1.499 \cdot 10^{+00} & 759 & 0\\
+\text{double} & 9.414 \cdot 10^{-12} & 3.221 \cdot 10^{-07} & 763&\\
+\text{quadruple}^* & 1.454 \cdot 10^{-39} & 5.247 \cdot 10^{-30} & 9240&\\
+\end{array}
+$$
+
+
+Errors for 100000 colinear points transformations simplified $M_D(A,A,B,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 1.135 \cdot 10^{-05} & 3.445 \cdot 10^{-01} & 1743 & 0\\
+\text{double} & 2.304 \cdot 10^{-14} & 8.891 \cdot 10^{-10} & 1795&\\
+\text{quadruple}^* & 3.853 \cdot 10^{-42} & 7.959 \cdot 10^{-33} & 12029&\\
 \end{array}
 $$
 
@@ -180,15 +266,29 @@ $$
 \begin{array}{lcccc}
 \text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
 \hline
-\text{single} & 1.696 \cdot 10^{-02} & 1.940 \cdot 10^{+00} & 2 & 0\\
-\text{double} & 4.322 \cdot 10^{-08} & 4.282 \cdot 10^{-03} & 1&\\
-\text{quadruple}^* & 1.861 \cdot 10^{-31} & 1.447 \cdot 10^{-26} & 1&\\
+\text{single} & 7.351 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.470 \cdot 10^{-09} & 4.908 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 2.108 \cdot 10^{-37} & 9.288 \cdot 10^{-28} & 15&\\
+\end{array}
+$$
+
+
+Errors for 100000 colinear points transformations simplified $M_D(A,0,\xi,0)$:
+
+$$
+\begin{array}{lcccc}
+\text{Precision} & \bar{\lVert\varepsilon\rVert} & \hat{\lVert\varepsilon\rVert} & 0 & \text{NaNs}\\
+\hline
+\text{single} & 7.213 \cdot 10^{-02} & 1.987 \cdot 10^{+00} & 0 & 0\\
+\text{double} & 1.336 \cdot 10^{-09} & 5.394 \cdot 10^{-05} & 0&\\
+\text{quadruple}^* & 1.612 \cdot 10^{-37} & 4.787 \cdot 10^{-28} & 24&\\
 \end{array}
 $$
 
 
 
-Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$, which could be explained that there are so many heavy numerical operations which affects the precision. Since higher precision was not investigated, is is from this shortage of data possible to make following assumption:
+
+Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$, which could be explained that there are so many heavy numerical operations which affects the precision. By simplifying the equations the error cut by half its size.  Since higher precision was not investigated, is is from this shortage of data possible to make following assumption:
 
 $$
 \begin{equation}
@@ -198,6 +298,8 @@ $$
 
 The number of zeros column and the NaN column, those numbers are excluded from the averaging. The averaging is of 100000 points, so that the total number of samples is then 100000 plus the zero and NaN count.
 
+The simplified version does produce more zero-value results which support the hypothesis of being a numerical hard problem.
+
 The high error in the single precision case have not been investigated, and is to be considered a todo item.
 
 ## Discussion
@@ -205,6 +307,8 @@ The high error in the single precision case have not been investigated, and is t
 The literature survey was limited since it would be too much effort to read up on a complete new field and the science related to the Möbius transformation. So there might have been algorithms which cover the same problem but was not found. The literature tells that all transformation inside the pointcaré disk model are Möbius transformations, so it should be possible to express the theorem using Möbius transformations.
 
 With higher precision the results approaches zero. That makes the argument that the geometric construction is exact, even if the author have not been able to prove it theoretical. The most important part is to considering the decrease of magnitude of the error since they may vary between executions.
+
+The simplification confirms that it is a numerical hard problem, and more simplicifications are required in order to proove it numerical.
 
 There might be some more improvement possible to the theorem since the zero handling of $Z_i$ and $\xi$ could be refined.
 
