@@ -174,6 +174,18 @@ x = \lVert P \rVert^2, \quad 0 \leq x < 1 \implies \\
 \end{gather}
 $$
 
+Another case to be aware of is when the denominator is 0 and can be rewritten as:
+
+$$
+
+\begin{equation}
+0 = 2P\cdot Q - P \cdot P - 1 = -\left(1 - \lVert Q \rVert^2 +  \lVert P - Q \rVert^2 \right)
+\end{equation}
+
+$$
+
+It could be understood geometrically as the distance is non-negative betwen $P$ and $Q$ that expression would never tend to zero if you are inside the unit disc, not at the boundary.
+
 Therefore it is possible to just simplify the expression to:
 
 $$
@@ -420,7 +432,7 @@ $$ -->
 
 
 
-Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$, which could be explained that there are so many heavy numerical operations which affects the precision. By simplifying the equations the error cut by half its size.  Since higher precision was not investigated, is is from this shortage of data possible to make following assumption:
+Higher precisions decreases the error, it can be seen for all cases. The precision is dropped when changing to transforms on the form $M_D(A,O,\xi,0)$, which could be explained that there are so many heavy numerical operations which affects the precision.  Since higher precision was not investigated, is is from this shortage of data possible to make following assumption:
 
 $$
 \begin{equation}
@@ -428,9 +440,9 @@ $$
 \end{equation}
 $$
 
-The number of zeros column and the NaN column, those numbers are excluded from the averaging. The averaging is of 100000 points, so that the total number of samples is then 100000 plus the zero and NaN count.
+The usage of the simplified version does not lead to a consistant behavior. In first case (compare first and second table) it improves by a magnitude of $3$, but in the second case (table three and four) was about twice as bad. The last comparision then it shows it improves. The simplified version does though produce more zero-value results which support the hypothesis of being a numerical hard problem.
 
-The simplified version does produce more zero-value results which support the hypothesis of being a numerical hard problem.
+The number of zeros column and the NaN column, those numbers are excluded from the averaging. The averaging is of 100000 points, so that the total number of samples is then 100000 plus the zero and NaN count.
 
 The intersection version does not make a consistent improvement. There is not so much simplification as it is in simplified version, so it is hard to say if it performs better or worse. It has therefore been let out from the result table for readability, but can be found in the source of this document.
 
